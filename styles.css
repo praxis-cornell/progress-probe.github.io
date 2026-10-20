@@ -1202,3 +1202,150 @@ pre code {
 .placeholder.square {
   aspect-ratio: 1 / 1;
 }
+
+/* Side-by-side latency figures: wide diagram on the left, plot on the right. */
+.latency-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.latency-panel figcaption {
+  grid-column: 1 / -1;
+  padding: 0 6px;
+}
+
+@media (max-width: 680px) {
+  .latency-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Results tables, styled after the paper's booktabs tables. */
+.table-figure {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  color: var(--ink);
+  font-size: 1.12rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.results-table th,
+.results-table td {
+  padding: 8px 12px;
+}
+
+.results-table th {
+  font-weight: 500;
+}
+
+.results-table thead tr:first-child th[colspan] {
+  border-bottom: 1px solid var(--muted);
+}
+
+.results-table thead tr:last-child th,
+.results-table thead th[rowspan] {
+  border-bottom: 1px solid var(--ink);
+}
+
+.results-table .method-col {
+  text-align: left;
+}
+
+.results-table .divider {
+  border-left: 1px solid var(--line);
+}
+
+.results-table .unit {
+  color: var(--muted);
+  font-size: 0.88em;
+}
+
+.results-table tr.ours td {
+  background: #fff6eb;
+}
+
+.results-table .m-p2 {
+  color: #f08c00;
+  font-weight: 700;
+}
+
+.results-table .m-safe {
+  color: #12968f;
+}
+
+.results-table .m-rbm {
+  color: #6a1bb0;
+}
+
+.results-table .m-rbm-ft {
+  color: #a68ad8;
+}
+
+/* Method groups and colors, matching the paper's tables. */
+.results-table tbody + tbody tr:first-child td {
+  border-top: 1px solid var(--muted);
+}
+
+.results-table .m-input {
+  color: #0b4ea2;
+}
+
+.results-table .m-output {
+  color: #a8324a;
+}
+
+.results-table .m-logpzo {
+  color: #1a8cff;
+}
+
+.narrow-table {
+  max-width: 560px;
+}
+
+.discrimination-figure {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* A second, smaller row of tabs under the main one. */
+.secondary-tabs .task-tab {
+  padding: 8px 15px;
+  font-size: 1.02rem;
+}
+
+.table-details {
+  max-width: 860px;
+  margin: 18px auto 0;
+}
+
+.table-details summary {
+  width: fit-content;
+  margin: 0 auto 14px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 1.02rem;
+  cursor: pointer;
+}
+
+.table-details summary:hover {
+  border-color: #aab4c3;
+  color: var(--ink);
+}

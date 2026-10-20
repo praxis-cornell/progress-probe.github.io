@@ -25,13 +25,21 @@
         </h1>
         <!-- TODO: authors -->
         <p class="authors">
-          <a href="#">Author One</a><sup>1</sup>,
-          <a href="#">Author Two</a><sup>1</sup>,
-          <a href="#">Author Three</a><sup>1</sup>
+          <a href="https://atikshb.github.io/">Atiksh Bhardwaj</a><sup>1</sup>,
+          <a href="https://www.linkedin.com/in/edward-duan/">Edward W. Duan</a><sup>2</sup>,
+          <a href="https://junwon.me/">Junwon Seo</a><sup>1</sup>,
+          <a href="https://pdan101.github.io/">Prithwish Dan</a><sup>2</sup>,
+          <a href="https://www.cs.cornell.edu/~weichiu/">Wei-Chiu Ma</a><sup>1</sup>,
+          <a href="https://www.cs.cmu.edu/~abajcsy/">Andrea Bajcsy</a><sup>1,&dagger;</sup>,
+          <a href="https://pculbertson.github.io/">Preston Culbertson</a><sup>2,&dagger;</sup>
         </p>
         <!-- TODO: affiliations -->
         <p class="affiliations">
-          <sup>1</sup>Affiliation
+          <sup>1</sup>Carnegie Mellon University
+          <sup>2</sup>Cornell University
+        </p>
+        <p class="affiliations">
+          <sup>&dagger;</sup>Equal advising
         </p>
         <!-- TODO: links. Delete any you don't need. -->
         <div class="link-row" aria-label="Project links">
@@ -72,27 +80,63 @@
     <main>
       <section class="section teaser-section" aria-label="Teaser">
         <p class="section-lede teaser-lede">
-          TODO: one-paragraph summary of the project.
+          Vision-Language-Action (VLA) models can perform diverse manipulation
+          tasks directly from visual observations and natural language
+          instructions, but they remain prone to mistakes and unpredictable
+          failures. Deploying these policies without continuous human
+          supervision will require robust runtime monitors that detect when the
+          policy has gone off-course. Existing monitors use external foundation
+          models, such as vision-language models (VLMs) to supervise the policy,
+          introducing significant complexity and computational cost for
+          monitoring at runtime. In this work, we investigate an alternate
+          approach: can a VLA's own internal activations provide the
+          information needed to monitor its execution? Our method trains linear
+          probes on policy activations from demonstrations to estimate
+          progress, then flags executions that deviate from expected progress.
+          In experiments with the open-source VLA <i>&pi;</i><sub>0.5</sub> and
+          across simulated and real-world manipulation tasks, this approach is
+          competitive with or outperforms VLM-based monitors in task failure
+          detection, as well as methods which require failure data for
+          training. These findings suggest that simple probes of VLA internals
+          can be used to develop reliable runtime monitors, opening a path
+          toward building policies that can act reliably and monitor their
+          execution without external foundation models.
         </p>
         <figure class="paper-figure hero-figure">
-          <!-- Replace with:
-          <video src="assets/teaser.mp4" autoplay muted loop playsinline preload="metadata"></video>
-          -->
-          <div class="placeholder">Teaser video / figure</div>
+          <video
+            src="docs/videos/ICRA-Video-2-cropped.mp4"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            data-playback-rate="1.5"
+            aria-label="Progress Probes (P²) overview video."
+          ></video>
         </figure>
 
         <div class="feature-list">
           <article>
-            <h3>Highlight 1</h3>
-            <p>TODO</p>
+            <h3>No External Monitor</h3>
+            <p>
+              P<sup>2</sup> reads task progress from activations the VLA
+              already computes, running 5&times;&ndash;20,000&times; faster
+              than foundation-model monitors.
+            </p>
           </article>
           <article>
-            <h3>Highlight 2</h3>
-            <p>TODO</p>
+            <h3>Success-Only Training</h3>
+            <p>
+              Progress labels come for free from successful demonstrations; no
+              failure data or human annotation is needed.
+            </p>
           </article>
           <article>
-            <h3>Highlight 3</h3>
-            <p>TODO</p>
+            <h3>Competitive Detection</h3>
+            <p>
+              AUROC of 0.788 on 6 VLABench tasks and 0.78 on 6 real-world
+              tasks, matching or exceeding SAFE and Robometer.
+            </p>
           </article>
         </div>
       </section>
@@ -105,149 +149,659 @@
       <section id="method" class="section">
         <h2>Method</h2>
         <figure class="paper-figure">
-          <!-- <img src="assets/method.png" alt="Method overview." /> -->
-          <div class="placeholder wide">Method figure</div>
+          <img
+            src="docs/svgs/methods.svg"
+            alt="Progress Probes (P²) method overview."
+          />
         </figure>
         <div class="method-copy">
-          <p>TODO: method overview.</p>
+          <p>
+            Our key insight is that a VLA's internal activations encode how far
+            the policy has progressed through a task. In successful executions,
+            this encoded progress advances predictably with elapsed time; when
+            the policy fails or stalls, it falls behind. Progress Probes
+            (P<sup>2</sup>) turn this signal into a runtime monitor in three
+            steps:
+          </p>
           <div class="method-prose">
-            <p><strong>Component 1.</strong> TODO</p>
-            <p><strong>Component 2.</strong> TODO</p>
-            <p><strong>Component 3.</strong> TODO</p>
+            <p>
+              <strong>Labeling progress.</strong> Each timestep of a successful
+              demonstration is labeled with its normalized time remaining,
+              <i>&zeta;</i><sub><i>t</i></sub> = 1 &minus; <i>t</i>/<i>T</i>,
+              which decreases from 1 at the start of the task to 0 at the end.
+              These labels require no human supervision and no failure data.
+            </p>
+            <p>
+              <strong>Linear progress probes.</strong> We pass the
+              demonstrations through <i>&pi;</i><sub>0.5</sub>, mean-pool the
+              activations <i>z</i><sup><i>i</i></sup> at a layer <i>i</i>
+              across tokens, and fit a linear regression
+              <i>&zeta;&#770;</i> = <i>w</i><sup>&#8868;</sup><i>z</i><sup><i>i</i></sup> + <i>b</i>
+              to predict task progress.
+            </p>
+            <p>
+              <strong>Runtime monitoring.</strong> At deployment, the probe
+              reads the activations already computed during inference and
+              compares its estimate to the nominal progress
+              1 &minus; <i>t</i>/<i>&mu;</i><sub><i>T</i></sub>, where
+              <i>&mu;</i><sub><i>T</i></sub> is the mean successful trajectory
+              length. A failure is flagged when the estimate lags behind
+              nominal by more than a threshold <i>&delta;</i>; finishing ahead
+              of schedule is not penalized.
+            </p>
           </div>
         </div>
       </section>
 
-      <section id="results" class="section result-section">
-        <h2>Results</h2>
-        <p class="section-lede">TODO</p>
-        <figure class="paper-figure full-figure">
-          <!-- <img src="assets/results.png" alt="Main results." /> -->
-          <div class="placeholder wide">Results figure</div>
-        </figure>
-        <!--
-          Tabbed media block: each tab's data-src is loaded into the
-          [data-swap] element (a <video> or <img>) in the same .video-block.
-        -->
-        <div class="video-block">
-          <div class="video-controls">
-            <div class="task-tabs" role="tablist" aria-label="Results task">
-              <button class="task-tab active" type="button" role="tab" data-src="">Task 1</button>
-              <button class="task-tab" type="button" role="tab" data-src="">Task 2</button>
-              <button class="task-tab" type="button" role="tab" data-src="">Task 3</button>
-            </div>
-          </div>
-          <figure class="paper-figure video-figure world-model-video-figure">
-            <!-- <video data-swap autoplay muted loop playsinline></video> -->
-            <div class="placeholder">Results video</div>
+      <section id="runtime-monitor" class="section result-section">
+        <h2>What Makes a Good Runtime Monitor?</h2>
+        <p class="section-lede">
+          A runtime monitor watches the policy as it executes and raises an
+          alarm when the rollout is unlikely to succeed. On a successful
+          trajectory, the progress estimated by P<sup>2</sup> closely follows
+          the expected progress and never enters the detection region; on a
+          failed trajectory, it falls behind schedule and crosses the boundary.
+        </p>
+        <!-- Videos in a .video-sync group start together and restart together once all have ended. -->
+        <div class="video-grid two-col video-sync">
+          <figure class="paper-figure">
+            <video
+              src="docs/videos/progress_success.mp4"
+              muted
+              playsinline
+              preload="auto"
+              aria-label="Progress probe estimate tracking expected progress on a successful trajectory without crossing the detection boundary."
+            ></video>
+          </figure>
+          <figure class="paper-figure">
+            <video
+              src="docs/videos/progress_failure.mp4"
+              muted
+              playsinline
+              preload="auto"
+              aria-label="Progress probe estimate falling behind expected progress on a failed trajectory and crossing the detection boundary."
+            ></video>
           </figure>
         </div>
+        <div class="method-copy">
+          <p>
+            We want a monitor that is accurate, fast to react, and practical to
+            deploy alongside the policy:
+          </p>
+          <div class="method-prose">
+            <p>
+              <strong>Reliable discrimination.</strong> The monitor should
+              separate successes from failures, firing on failed rollouts while
+              keeping false alarms on successful ones rare. P<sup>2</sup> only
+              flags a rollout once its estimated progress lags the nominal
+              trajectory by more than a calibrated threshold.
+            </p>
+            <p>
+              <strong>Early detection.</strong> A failure flagged at the end of
+              an episode is of little use; the monitor should fire as soon as
+              the execution goes off-course, leaving time to intervene. Because
+              P<sup>2</sup> scores every timestep, it reacts as soon as
+              progress stalls.
+            </p>
+            <p>
+              <strong>No failure data required.</strong> Failures are diverse
+              and costly to collect, so the monitor should be trainable from
+              successful executions alone. P<sup>2</sup>'s progress labels come
+              directly from successful demonstrations.
+            </p>
+            <p>
+              <strong>Lightweight at runtime.</strong> The monitor should keep
+              pace with the policy without adding latency or relying on a large
+              external model. A VLM-based monitor such as Robometer runs a
+              separate 4B-parameter model at every check, whereas
+              P<sup>2</sup> adds only a 2K-parameter linear readout on
+              activations the VLA already computes during inference.
+            </p>
+            <figure class="paper-figure latency-panel">
+              <img
+                src="docs/svgs/probe_vs_vlm.svg"
+                alt="A 4B-parameter VLM monitor (Robometer) compared with a 2K-parameter linear probe on the VLA's own activations."
+              />
+              <img
+                src="docs/svgs/latency.svg"
+                alt="Failure-detection AUROC versus inference speed for runtime monitors; Progress Probe is the fastest while remaining among the most accurate."
+              />
+              <figcaption>
+                <strong>Left:</strong> P<sup>2</sup> replaces a separate
+                4B-parameter VLM with a 2K-parameter probe on the VLA's own
+                activations. <strong>Right:</strong> failure-detection AUROC
+                versus inference speed in simulation. P<sup>2</sup> runs in
+                0.026&nbsp;ms per step on an RTX A6000, over 10,000&times;
+                faster than Robometer, while remaining competitive with the
+                most accurate monitors.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
       </section>
 
-      <section class="section result-section">
-        <h3 class="subsection-title">Subsection</h3>
-        <p class="section-lede">TODO</p>
-        <figure class="paper-figure">
-          <div class="placeholder wide">Figure</div>
-        </figure>
-      </section>
-
-      <section class="section result-section downstream-applications">
+      <section id="experiments" class="section result-section downstream-applications">
         <h2>Experiments</h2>
-        <p class="section-lede">TODO</p>
+        <p class="section-lede">
+          We evaluate P<sup>2</sup> on the <i>&pi;</i><sub>0.5</sub> VLA across
+          6 simulated VLABench tasks and 6 real-world manipulation tasks,
+          comparing against runtime monitors that use image inputs, action
+          outputs, VLA internals, and large reward models.
+        </p>
 
         <div class="application-block">
-          <h3>Experiment 1</h3>
-          <p>TODO</p>
-          <figure class="paper-figure policy-eval-figure">
-            <div class="placeholder">Figure</div>
-          </figure>
+          <h3>Detection Time</h3>
+          <p>
+            A useful monitor must catch failures early while rarely firing on
+            successful rollouts. We calibrate each detector to a 5%
+            false-positive rate and measure how far into the episode it first
+            flags a failure. P<sup>2</sup> detects failures on par with
+            state-of-the-art monitors, at 0.60 of the episode on average
+            compared with 0.53 for SAFE-LSTM and 0.56 for Robometer-FT, even
+            though it uses only the current activation and is trained without
+            any failure labels.
+          </p>
+          <!--
+            Tabs with data-panel show the matching [data-panel-id] element in
+            the same .video-block and hide the others.
+          -->
           <div class="video-block">
             <div class="video-controls">
-              <div class="task-tabs" role="tablist" aria-label="Experiment 1 task">
-                <button class="task-tab active" type="button" role="tab" data-src="">Task 1</button>
-                <button class="task-tab" type="button" role="tab" data-src="">Task 2</button>
-                <button class="task-tab" type="button" role="tab" data-src="">Task 3</button>
+              <div class="task-tabs" role="tablist" aria-label="Detection time view">
+                <button class="task-tab active" type="button" role="tab" data-panel="detection-video">Example Rollout</button>
+                <button class="task-tab" type="button" role="tab" data-panel="detection-table">Results Table</button>
               </div>
             </div>
-            <figure class="paper-figure video-figure policy-eval-comparison-figure">
-              <div class="video-wrap">
-                <!-- <video data-swap autoplay muted loop playsinline></video> -->
-                <div class="placeholder wide">Video</div>
+            <figure class="paper-figure" data-panel-id="detection-video">
+              <video
+                src="docs/videos/detection.mp4"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Monitor scores over a failed simulated rollout: Progress Probe raises an alarm at 0.40 of the episode, Robometer-FT at 0.42, SAFE-LSTM at 0.48, and SAFE-MLP at 0.53."
+              ></video>
+            </figure>
+            <figure class="paper-figure table-figure" data-panel-id="detection-table" hidden>
+              <div class="table-scroll">
+                <table class="results-table">
+                  <thead>
+                    <tr>
+                      <th rowspan="2" class="method-col">Detector</th>
+                      <th colspan="4">TPR @ 5% FPR by episode fraction &uarr;</th>
+                      <th rowspan="2" class="divider">Det. time &darr;<br /><span class="unit">(frac. of ep.)</span></th>
+                    </tr>
+                    <tr>
+                      <th>25%</th>
+                      <th>50%</th>
+                      <th>75%</th>
+                      <th>100%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="ours">
+                      <td class="method-col"><span class="m-p2">Progress Probe (P<sup>2</sup>)</span></td>
+                      <td>0.00</td><td>0.19</td><td>0.54</td><td>0.64</td>
+                      <td class="divider">0.60</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-safe">SAFE-MLP</span></td>
+                      <td>0.00</td><td>0.08</td><td>0.41</td><td><strong>0.77</strong></td>
+                      <td class="divider">0.75</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-safe">SAFE-LSTM</span></td>
+                      <td><strong>0.11</strong></td><td><strong>0.37</strong></td><td>0.59</td><td>0.72</td>
+                      <td class="divider">0.53</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-rbm">Robometer (progress)</span></td>
+                      <td>0.01</td><td>0.08</td><td>0.21</td><td>0.33</td>
+                      <td class="divider">0.67</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-rbm-ft">Robometer FT (progress)</span></td>
+                      <td>0.00</td><td>0.34</td><td><strong>0.62</strong></td><td>0.72</td>
+                      <td class="divider">0.56</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
+              <figcaption>
+                Simulation detection-time results. TPR is the fraction of
+                failures caught by each point in the episode at a 5%
+                false-positive rate; detection time is the average fraction of
+                the episode elapsed before the first alarm on failed rollouts.
+              </figcaption>
             </figure>
           </div>
         </div>
 
         <div class="application-block">
-          <h3>Experiment 2</h3>
-          <p>TODO</p>
-          <figure class="paper-figure medium-figure">
-            <div class="placeholder wide">Figure</div>
+          <h3>Discrimination</h3>
+          <p>
+            Beyond firing early, a monitor must reliably tell successful
+            rollouts apart from failed ones. We report failure-detection AUROC
+            at two levels: <em>episode</em>, which classifies a whole rollout
+            from its maximum score, and <em>state</em>, which classifies every
+            timestep. On hardware, P<sup>2</sup> achieves the highest episode-
+            and state-level AUROC of all monitors (0.65 and 0.78), including
+            SAFE and Robometer-FT, which are trained with additional failure
+            data. In simulation, it remains competitive with these supervised
+            baselines without using any failure labels.
+          </p>
+          <p>
+            We also test generalization by training each monitor on 3 of the 6
+            tasks and evaluating on the 3 held-out tasks, across all 20
+            possible splits. P<sup>2</sup> transfers well to unseen tasks,
+            reaching a state-level AUROC of 0.81 on hardware, the best of all
+            monitors, and 0.794 in simulation.
+          </p>
+          <figure class="paper-figure">
+            <video
+              src="docs/videos/discrimination.mp4"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              aria-label="Failure scores from SAFE, Progress Probe, and Robometer-FT over a failed real-world rollout."
+            ></video>
+            <figcaption>
+              A failed real-world rollout. The P<sup>2</sup> failure score
+              rises well before the labeled failure moment and stays high,
+              while SAFE and Robometer-FT fluctuate.
+            </figcaption>
           </figure>
+          <!--
+            Two tab rows: the panel shown is the one whose data-panel-id joins
+            the active data-panel of each row with "-" (e.g. "real-unseen").
+          -->
           <div class="video-block">
             <div class="video-controls">
-              <div class="task-tabs" role="tablist" aria-label="Experiment 2 task">
-                <button class="task-tab active" type="button" role="tab" data-src="">Task 1</button>
-                <button class="task-tab" type="button" role="tab" data-src="">Task 2</button>
-                <button class="task-tab" type="button" role="tab" data-src="">Task 3</button>
+              <div class="task-tabs" role="tablist" aria-label="Evaluation setting">
+                <button class="task-tab active" type="button" role="tab" data-panel="real">Real World</button>
+                <button class="task-tab" type="button" role="tab" data-panel="sim">Simulation</button>
+              </div>
+              <div class="task-tabs secondary-tabs" role="tablist" aria-label="Task split">
+                <button class="task-tab active" type="button" role="tab" data-panel="all">All Tasks</button>
+                <button class="task-tab" type="button" role="tab" data-panel="unseen">Unseen Tasks</button>
               </div>
             </div>
-            <!-- Video on the left, plot on the right. -->
-            <div class="policy-finetuning-panel">
-              <figure class="paper-figure video-figure policy-finetuning-video-figure">
-                <div class="video-wrap">
-                  <!-- <video data-swap autoplay muted loop playsinline></video> -->
-                  <div class="placeholder">Video</div>
-                </div>
+
+            <div data-panel-id="real-all">
+              <figure class="paper-figure discrimination-figure">
+                <img
+                  src="docs/svgs/discrimination.svg"
+                  alt="Hardware episode-level and state-level failure-detection AUROC across all tasks; Progress Probe is highest at both levels."
+                />
+                <figcaption>
+                  Hardware episode- and state-level AUROC aggregated across all
+                  six tasks.
+                </figcaption>
               </figure>
-              <figure class="paper-figure policy-finetuning-plot-figure">
-                <div class="placeholder square">Plot</div>
-              </figure>
+              <details class="table-details">
+                <summary>Per-task breakdown</summary>
+                <figure class="paper-figure table-figure">
+                  <div class="table-scroll">
+                    <table class="results-table">
+                      <thead>
+                        <tr>
+                          <th class="method-col">Method</th>
+                          <th>Block<br />Stack</th>
+                          <th>Knife<br />Put</th>
+                          <th>Stacked<br />Utensil</th>
+                          <th>Candy<br />Bag</th>
+                          <th>Coffee<br />Bag</th>
+                          <th>Coffee<br />Bean</th>
+                          <th class="divider">Average<br />AUROC</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="method-col"><span class="m-input">FAIL-Detect (lopO)</span></td>
+                          <td>0.40</td><td>0.46</td><td>0.59</td><td>0.67</td><td>0.49</td><td>0.42</td><td class="divider">0.54</td>
+                        </tr>
+                        <tr>
+                          <td class="method-col"><span class="m-input">FIPER (RND-OE)</span></td>
+                          <td>0.61</td><td>0.82</td><td>0.74</td><td>0.50</td><td>0.60</td><td>0.52</td><td class="divider">0.61</td>
+                        </tr>
+                      </tbody>
+                      <tbody>
+                        <tr>
+                          <td class="method-col"><span class="m-output">FIPER (ACE)</span></td>
+                          <td>0.61</td><td>0.68</td><td>0.62</td><td>0.50</td><td>0.60</td><td>0.50</td><td class="divider">0.57</td>
+                        </tr>
+                        <tr>
+                          <td class="method-col"><span class="m-output">STAC</span></td>
+                          <td>0.59</td><td>0.57</td><td>0.37</td><td>0.31</td><td>0.57</td><td>0.34</td><td class="divider">0.45</td>
+                        </tr>
+                      </tbody>
+                      <tbody>
+                        <tr>
+                          <td class="method-col"><span class="m-safe">SAFE-MLP</span></td>
+                          <td>0.60</td><td>0.80</td><td>0.60</td><td>0.72</td><td>0.39</td><td>0.38</td><td class="divider">0.73</td>
+                        </tr>
+                        <tr>
+                          <td class="method-col"><span class="m-safe">SAFE-LSTM</span></td>
+                          <td>0.70</td><td>0.70</td><td>0.57</td><td>0.76</td><td>0.50</td><td>0.33</td><td class="divider">0.58</td>
+                        </tr>
+                        <tr>
+                          <td class="method-col"><span class="m-logpzo">FAIL-Detect (logpZO)</span></td>
+                          <td>0.47</td><td><strong>0.94</strong></td><td>0.79</td><td>0.90</td><td><strong>0.72</strong></td><td><strong>0.74</strong></td><td class="divider">0.69</td>
+                        </tr>
+                      </tbody>
+                      <tbody>
+                        <tr>
+                          <td class="method-col"><span class="m-rbm">Robometer (progress)</span></td>
+                          <td>0.53</td><td>0.51</td><td>0.73</td><td>0.94</td><td>0.61</td><td>0.66</td><td class="divider">0.70</td>
+                        </tr>
+                        <tr>
+                          <td class="method-col"><span class="m-rbm">Robometer (success)</span></td>
+                          <td>0.33</td><td>0.33</td><td>0.30</td><td>0.46</td><td>0.24</td><td>0.25</td><td class="divider">0.41</td>
+                        </tr>
+                      </tbody>
+                      <tbody>
+                        <tr>
+                          <td class="method-col"><span class="m-rbm-ft">Robometer FT (progress)</span></td>
+                          <td>0.63</td><td>0.56</td><td><strong>0.88</strong></td><td><strong>0.95</strong></td><td>0.66</td><td>0.53</td><td class="divider">0.75</td>
+                        </tr>
+                        <tr>
+                          <td class="method-col"><span class="m-rbm-ft">Robometer FT (success)</span></td>
+                          <td>0.32</td><td>0.43</td><td>0.28</td><td>0.39</td><td>0.20</td><td>0.18</td><td class="divider">0.34</td>
+                        </tr>
+                      </tbody>
+                      <tbody>
+                        <tr class="ours">
+                          <td class="method-col"><span class="m-p2">Progress Probe (P<sup>2</sup>)</span></td>
+                          <td><strong>0.87</strong></td><td>0.80</td><td>0.81</td><td>0.92</td><td>0.66</td><td>0.26</td><td class="divider"><strong>0.78</strong></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <figcaption>
+                    Hardware, all tasks: state-level failure-detection AUROC for
+                    each task. The rightmost column is AUROC across all six
+                    tasks.
+                  </figcaption>
+                </figure>
+              </details>
             </div>
+
+            <figure class="paper-figure table-figure" data-panel-id="real-unseen" hidden>
+              <div class="table-scroll">
+                <table class="results-table">
+                  <thead>
+                    <tr>
+                      <th class="method-col">Method</th>
+                      <th>Block<br />Stack</th>
+                      <th>Knife<br />Put</th>
+                      <th>Stacked<br />Utensil</th>
+                      <th>Candy<br />Bag</th>
+                      <th>Coffee<br />Bag</th>
+                      <th>Coffee<br />Bean</th>
+                      <th class="divider">Average<br />AUROC</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-input">FAIL-Detect (lopO)</span></td>
+                      <td>0.51</td><td>0.66</td><td>0.54</td><td>0.55</td><td><strong>0.60</strong></td><td>0.49</td><td class="divider">0.56</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-input">FIPER (RND-OE)</span></td>
+                      <td>0.40</td><td><strong>0.83</strong></td><td>0.76</td><td>0.62</td><td>0.51</td><td>0.56</td><td class="divider">0.61</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-output">FIPER (ACE)</span></td>
+                      <td>0.61</td><td>0.68</td><td>0.62</td><td>0.50</td><td><strong>0.60</strong></td><td>0.50</td><td class="divider">0.59</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-output">STAC</span></td>
+                      <td>0.59</td><td>0.57</td><td>0.37</td><td>0.31</td><td>0.57</td><td>0.34</td><td class="divider">0.46</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-safe">SAFE-MLP</span></td>
+                      <td>0.60</td><td>0.78</td><td>0.64</td><td>0.75</td><td>0.53</td><td>0.31</td><td class="divider">0.60</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-safe">SAFE-LSTM</span></td>
+                      <td>0.54</td><td>0.64</td><td>0.56</td><td>0.70</td><td>0.51</td><td>0.14</td><td class="divider">0.51</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-logpzo">FAIL-Detect (logpZO)</span></td>
+                      <td>0.48</td><td>0.80</td><td>0.77</td><td>0.83</td><td>0.50</td><td>0.75</td><td class="divider">0.69</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr class="ours">
+                      <td class="method-col"><span class="m-p2">Progress Probe (P<sup>2</sup>)</span></td>
+                      <td><strong>0.87</strong></td><td>0.75</td><td><strong>0.84</strong></td><td><strong>0.94</strong></td><td><strong>0.60</strong></td><td><strong>0.84</strong></td><td class="divider"><strong>0.81</strong></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <figcaption>
+                Hardware, unseen tasks: state-level failure-detection AUROC on
+                held-out tasks. Robometer is excluded since it is used
+                zero-shot, so every task is already unseen.
+              </figcaption>
+            </figure>
+
+            <figure class="paper-figure table-figure narrow-table" data-panel-id="sim-all" hidden>
+              <div class="table-scroll">
+                <table class="results-table">
+                  <thead>
+                    <tr>
+                      <th class="method-col">Method</th>
+                      <th>Episode &uarr;</th>
+                      <th>State &uarr;</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-input">FAIL-Detect (lopO)</span></td>
+                      <td>0.881</td><td>0.857</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-input">FIPER (RND-OE)</span></td>
+                      <td>0.874</td><td>0.850</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-output">FIPER (ACE)</span></td>
+                      <td>0.793</td><td>0.790</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-output">STAC</span></td>
+                      <td>0.477</td><td>0.442</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-safe">SAFE-MLP</span></td>
+                      <td><strong>0.930</strong></td><td><strong>0.894</strong></td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-safe">SAFE-LSTM</span></td>
+                      <td>0.923</td><td>0.851</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-logpzo">FAIL-Detect (logpZO)</span></td>
+                      <td>0.904</td><td>0.888</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-rbm">Robometer (progress)</span></td>
+                      <td>0.779</td><td>0.666</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-rbm">Robometer (success)</span></td>
+                      <td>0.514</td><td>0.316</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-rbm-ft">Robometer FT (progress)</span></td>
+                      <td>0.922</td><td>0.830</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-rbm-ft">Robometer FT (success)</span></td>
+                      <td>0.505</td><td>0.407</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr class="ours">
+                      <td class="method-col"><span class="m-p2">Progress Probe (P<sup>2</sup>)</span></td>
+                      <td>0.909</td><td>0.788</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <figcaption>
+                Simulation, all tasks: episode- and state-level
+                failure-detection AUROC over 600 rollouts on 6 VLABench tasks.
+              </figcaption>
+            </figure>
+
+            <figure class="paper-figure table-figure narrow-table" data-panel-id="sim-unseen" hidden>
+              <div class="table-scroll">
+                <table class="results-table">
+                  <thead>
+                    <tr>
+                      <th class="method-col">Method</th>
+                      <th>Episode &uarr;</th>
+                      <th>State &uarr;</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-input">FAIL-Detect (lopO)</span></td>
+                      <td>0.667</td><td>0.656</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-input">FIPER (RND-OE)</span></td>
+                      <td>0.661</td><td>0.557</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-output">FIPER (ACE)</span></td>
+                      <td>0.843</td><td>0.800</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-output">STAC</span></td>
+                      <td>0.482</td><td>0.434</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr>
+                      <td class="method-col"><span class="m-safe">SAFE-MLP</span></td>
+                      <td>0.896</td><td><strong>0.866</strong></td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-safe">SAFE-LSTM</span></td>
+                      <td>0.859</td><td>0.803</td>
+                    </tr>
+                    <tr>
+                      <td class="method-col"><span class="m-logpzo">FAIL-Detect (logpZO)</span></td>
+                      <td>0.634</td><td>0.571</td>
+                    </tr>
+                  </tbody>
+                  <tbody>
+                    <tr class="ours">
+                      <td class="method-col"><span class="m-p2">Progress Probe (P<sup>2</sup>)</span></td>
+                      <td><strong>0.900</strong></td><td>0.794</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <figcaption>
+                Simulation, unseen tasks: AUROC on held-out tasks, averaged
+                over all 20 seen/unseen splits.
+              </figcaption>
+            </figure>
           </div>
         </div>
 
         <div class="application-block">
-          <h3>Experiment 3</h3>
-          <p>TODO</p>
-          <div class="tts-panel">
-            <div class="tts-overview-panel">
-              <figure class="paper-figure video-figure tts-video-figure">
-                <div class="video-wrap">
-                  <div class="placeholder">Video</div>
-                </div>
-              </figure>
-              <figure class="paper-figure tts-plot-figure">
-                <div class="placeholder square">Plot</div>
-              </figure>
-            </div>
-
-            <!--
-              Frame slider: set data-pattern on the slider to an image path
-              containing {i} (zero-padded to 3 digits), set max to the frame
-              count, and give the <img> below the data-slider-target attribute.
-            -->
-            <div class="tts-slider-row">
-              <span class="tts-slider-label">Step</span>
-              <input
-                type="range"
-                class="tts-slider"
-                min="1"
-                max="10"
-                value="1"
-                step="1"
-                data-pattern=""
-              />
-              <output class="tts-slider-value">1</output>
-            </div>
-
-            <figure class="paper-figure video-figure tts-chunk-figure">
-              <div class="tts-chunk-wrap">
-                <!-- <img data-slider-target alt="" /> -->
-                <div class="placeholder wide">Per-step frame</div>
+          <h3>Does Action Data Matter?</h3>
+          <p>
+            Unlike VLMs, which are trained only on images and text, VLAs are
+            additionally trained on robot actions. To test whether this
+            action-grounded training produces representations that better
+            encode task progress, we train the same progress probe on the
+            activations of four models: PaliGemma (the 3B VLM backbone of
+            <i>&pi;</i><sub>0.5</sub>), Robometer (a 4B reward model trained on
+            robot videos) both zero-shot and fine-tuned, and the
+            <i>&pi;</i><sub>0.5</sub> VLA itself.
+          </p>
+          <p>
+            Action data makes the difference. Probing <i>&pi;</i><sub>0.5</sub>
+            gives the most accurate progress prediction (R<sup>2</sup> = 0.83,
+            vs. 0.69&ndash;0.76 for the VLMs) and the strongest failure
+            detection (AUROC 0.93). Seeing robots in training is not enough on
+            its own: zero-shot Robometer, despite its robot-video training,
+            does no better than PaliGemma. Learning to predict actions appears
+            to shape internal representations that better capture whether the
+            policy is on track.
+          </p>
+          <figure class="paper-figure medium-figure">
+            <img
+              src="docs/svgs/action_data.svg"
+              alt="Progress predictions and summary bars for probes trained on PaliGemma, Robometer, Robometer (FT), and the VLA; the VLA probe has the highest R-squared (0.83) and failure-detection AUROC (0.93)."
+            />
+            <figcaption>
+              Top: progress predicted by probes on each model's activations
+              over successful simulation rollouts (grey) against nominal
+              progress (dashed). Bottom: progress-prediction R<sup>2</sup> and
+              failure-detection AUROC.
+            </figcaption>
+          </figure>
+          <div class="video-block">
+            <div class="video-controls">
+              <div class="task-tabs" role="tablist" aria-label="Action data example">
+                <button class="task-tab active" type="button" role="tab" data-panel="action-progress">Progress Prediction</button>
+                <button class="task-tab" type="button" role="tab" data-panel="action-failure">Failure Detection</button>
               </div>
-              <figcaption>TODO: caption.</figcaption>
+            </div>
+            <figure class="paper-figure" data-panel-id="action-progress">
+              <video
+                src="docs/videos/action_data_1.mp4"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Progress predicted by probes on PaliGemma, Robometer, Robometer (FT), and the VLA over a successful simulated rollout."
+              ></video>
+              <figcaption>
+                A successful rollout. The probe on <i>&pi;</i><sub>0.5</sub>
+                follows nominal progress most closely, while the VLM probes
+                drift and fluctuate.
+              </figcaption>
+            </figure>
+            <figure class="paper-figure" data-panel-id="action-failure" hidden>
+              <video
+                src="docs/videos/action_data_2.mp4"
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="Failure scores from probes on PaliGemma, Robometer, Robometer (FT), and the VLA over a failed simulated rollout."
+              ></video>
+              <figcaption>
+                A failed rollout. The probe on <i>&pi;</i><sub>0.5</sub> raises
+                an alarm shortly after the failure, while the VLM probes react
+                later or not at all.
+              </figcaption>
             </figure>
           </div>
         </div>
@@ -319,6 +873,45 @@
         enableDelayedLoop(video);
       });
 
+      // Play videos in a .video-sync group in lockstep: start once all are
+      // ready, hold finished ones on their last frame, and restart together.
+      document.querySelectorAll(".video-sync").forEach((group) => {
+        const videos = Array.from(group.querySelectorAll("video"));
+        let restartTimer;
+
+        function restartAll() {
+          videos.forEach((video) => {
+            video.currentTime = 0;
+          });
+          videos.forEach((video) => video.play().catch(() => {}));
+        }
+
+        function startWhenReady() {
+          if (videos.every((video) => video.readyState >= 3)) restartAll();
+        }
+
+        videos.forEach((video) => {
+          video.addEventListener("canplay", startWhenReady, { once: true });
+          video.addEventListener("ended", () => {
+            if (!videos.every((v) => v.ended)) return;
+            window.clearTimeout(restartTimer);
+            restartTimer = window.setTimeout(restartAll, 1000);
+          });
+        });
+        startWhenReady();
+      });
+
+      // Speed up videos marked with data-playback-rate (e.g. "1.5").
+      document.querySelectorAll("video[data-playback-rate]").forEach((video) => {
+        const rate = Number(video.dataset.playbackRate);
+        const applyRate = () => {
+          video.defaultPlaybackRate = rate;
+          video.playbackRate = rate;
+        };
+        applyRate();
+        video.addEventListener("loadedmetadata", applyRate);
+      });
+
       function setMediaSrc(media, src) {
         if (!media || !src) return;
         media.src = src;
@@ -332,6 +925,7 @@
         const tabs = Array.from(tabList.querySelectorAll(".task-tab"));
         const block = tabList.closest(".video-block");
         const media = block ? block.querySelector("[data-swap]") : null;
+        const panels = block ? block.querySelectorAll("[data-panel-id]") : [];
 
         function activate(tab) {
           tabs.forEach((t) => {
@@ -341,6 +935,22 @@
             t.tabIndex = isActive ? 0 : -1;
           });
           setMediaSrc(media, tab.dataset.src);
+          if (tab.dataset.panel) {
+            // With several tab rows, the panel key joins each row's active choice.
+            const key = Array.from(block.querySelectorAll(".task-tabs"))
+              .map((list) => list.querySelector(".task-tab.active"))
+              .filter((active) => active && active.dataset.panel)
+              .map((active) => active.dataset.panel)
+              .join("-");
+            panels.forEach((panel) => {
+              const isShown = panel.dataset.panelId === key;
+              panel.hidden = !isShown;
+              panel.querySelectorAll("video").forEach((video) => {
+                if (isShown) video.play().catch(() => {});
+                else video.pause();
+              });
+            });
+          }
         }
 
         tabs.forEach((tab, index) => {
