@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Progress Probes (P²): lightweight runtime monitoring for Vision-Language-Action models."
+    />
+    <meta property="og:title" content="Progress Probes (P²)" />
+    <meta
+      property="og:description"
+      content="Lightweight runtime monitoring for Vision-Language-Action models."
+    />
+    <title>Progress Probes (P²) | Lightweight Runtime Monitoring for VLAs</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <header class="site-header">
+      <div class="hero">
+        <h1>
+          Progress Probes (P<sup>2</sup>): Lightweight Runtime Monitoring for
+          Vision-Language-Action Models
+        </h1>
+        <!-- TODO: authors -->
+        <p class="authors">
+          <a href="#">Author One</a><sup>1</sup>,
+          <a href="#">Author Two</a><sup>1</sup>,
+          <a href="#">Author Three</a><sup>1</sup>
+        </p>
+        <!-- TODO: affiliations -->
+        <p class="affiliations">
+          <sup>1</sup>Affiliation
+        </p>
+        <!-- TODO: links. Delete any you don't need. -->
+        <div class="link-row" aria-label="Project links">
+          <a class="project-link" href="#" rel="noreferrer">
+            <span class="icon" aria-hidden="true">
+              <img src="assets/icons/arxiv.svg" alt="" />
+            </span>
+            arXiv
+          </a>
+          <a class="project-link" href="#" rel="noreferrer">
+            <span class="icon" aria-hidden="true">
+              <img src="assets/icons/file-pdf.svg" alt="" />
+            </span>
+            Paper
+          </a>
+          <a class="project-link" href="#" rel="noreferrer">
+            <span class="icon" aria-hidden="true">
+              <img src="assets/icons/github.svg" alt="" />
+            </span>
+            Code
+          </a>
+          <a class="project-link hf-link" href="#" rel="noreferrer">
+            <span class="icon" aria-hidden="true">
+              <img src="assets/icons/huggingface.svg" alt="" />
+            </span>
+            Model Weights
+          </a>
+          <a class="project-link hf-link" href="#" rel="noreferrer">
+            <span class="icon" aria-hidden="true">
+              <img src="assets/icons/huggingface.svg" alt="" />
+            </span>
+            Data
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section teaser-section" aria-label="Teaser">
+        <p class="section-lede teaser-lede">
+          TODO: one-paragraph summary of the project.
+        </p>
+        <figure class="paper-figure hero-figure">
+          <!-- Replace with:
+          <video src="assets/teaser.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          -->
+          <div class="placeholder">Teaser video / figure</div>
+        </figure>
+
+        <div class="feature-list">
+          <article>
+            <h3>Highlight 1</h3>
+            <p>TODO</p>
+          </article>
+          <article>
+            <h3>Highlight 2</h3>
+            <p>TODO</p>
+          </article>
+          <article>
+            <h3>Highlight 3</h3>
+            <p>TODO</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- <section id="abstract" class="section narrow">
+        <h2>Abstract</h2>
+        <p>TODO</p>
+      </section> -->
+
+      <section id="method" class="section">
+        <h2>Method</h2>
+        <figure class="paper-figure">
+          <!-- <img src="assets/method.png" alt="Method overview." /> -->
+          <div class="placeholder wide">Method figure</div>
+        </figure>
+        <div class="method-copy">
+          <p>TODO: method overview.</p>
+          <div class="method-prose">
+            <p><strong>Component 1.</strong> TODO</p>
+            <p><strong>Component 2.</strong> TODO</p>
+            <p><strong>Component 3.</strong> TODO</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="results" class="section result-section">
+        <h2>Results</h2>
+        <p class="section-lede">TODO</p>
+        <figure class="paper-figure full-figure">
+          <!-- <img src="assets/results.png" alt="Main results." /> -->
+          <div class="placeholder wide">Results figure</div>
+        </figure>
+        <!--
+          Tabbed media block: each tab's data-src is loaded into the
+          [data-swap] element (a <video> or <img>) in the same .video-block.
+        -->
+        <div class="video-block">
+          <div class="video-controls">
+            <div class="task-tabs" role="tablist" aria-label="Results task">
+              <button class="task-tab active" type="button" role="tab" data-src="">Task 1</button>
+              <button class="task-tab" type="button" role="tab" data-src="">Task 2</button>
+              <button class="task-tab" type="button" role="tab" data-src="">Task 3</button>
+            </div>
+          </div>
+          <figure class="paper-figure video-figure world-model-video-figure">
+            <!-- <video data-swap autoplay muted loop playsinline></video> -->
+            <div class="placeholder">Results video</div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section result-section">
+        <h3 class="subsection-title">Subsection</h3>
+        <p class="section-lede">TODO</p>
+        <figure class="paper-figure">
+          <div class="placeholder wide">Figure</div>
+        </figure>
+      </section>
+
+      <section class="section result-section downstream-applications">
+        <h2>Experiments</h2>
+        <p class="section-lede">TODO</p>
+
+        <div class="application-block">
+          <h3>Experiment 1</h3>
+          <p>TODO</p>
+          <figure class="paper-figure policy-eval-figure">
+            <div class="placeholder">Figure</div>
+          </figure>
+          <div class="video-block">
+            <div class="video-controls">
+              <div class="task-tabs" role="tablist" aria-label="Experiment 1 task">
+                <button class="task-tab active" type="button" role="tab" data-src="">Task 1</button>
+                <button class="task-tab" type="button" role="tab" data-src="">Task 2</button>
+                <button class="task-tab" type="button" role="tab" data-src="">Task 3</button>
+              </div>
+            </div>
+            <figure class="paper-figure video-figure policy-eval-comparison-figure">
+              <div class="video-wrap">
+                <!-- <video data-swap autoplay muted loop playsinline></video> -->
+                <div class="placeholder wide">Video</div>
+              </div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="application-block">
+          <h3>Experiment 2</h3>
+          <p>TODO</p>
+          <figure class="paper-figure medium-figure">
+            <div class="placeholder wide">Figure</div>
+          </figure>
+          <div class="video-block">
+            <div class="video-controls">
+              <div class="task-tabs" role="tablist" aria-label="Experiment 2 task">
+                <button class="task-tab active" type="button" role="tab" data-src="">Task 1</button>
+                <button class="task-tab" type="button" role="tab" data-src="">Task 2</button>
+                <button class="task-tab" type="button" role="tab" data-src="">Task 3</button>
+              </div>
+            </div>
+            <!-- Video on the left, plot on the right. -->
+            <div class="policy-finetuning-panel">
+              <figure class="paper-figure video-figure policy-finetuning-video-figure">
+                <div class="video-wrap">
+                  <!-- <video data-swap autoplay muted loop playsinline></video> -->
+                  <div class="placeholder">Video</div>
+                </div>
+              </figure>
+              <figure class="paper-figure policy-finetuning-plot-figure">
+                <div class="placeholder square">Plot</div>
+              </figure>
+            </div>
+          </div>
+        </div>
+
+        <div class="application-block">
+          <h3>Experiment 3</h3>
+          <p>TODO</p>
+          <div class="tts-panel">
+            <div class="tts-overview-panel">
+              <figure class="paper-figure video-figure tts-video-figure">
+                <div class="video-wrap">
+                  <div class="placeholder">Video</div>
+                </div>
+              </figure>
+              <figure class="paper-figure tts-plot-figure">
+                <div class="placeholder square">Plot</div>
+              </figure>
+            </div>
+
+            <!--
+              Frame slider: set data-pattern on the slider to an image path
+              containing {i} (zero-padded to 3 digits), set max to the frame
+              count, and give the <img> below the data-slider-target attribute.
+            -->
+            <div class="tts-slider-row">
+              <span class="tts-slider-label">Step</span>
+              <input
+                type="range"
+                class="tts-slider"
+                min="1"
+                max="10"
+                value="1"
+                step="1"
+                data-pattern=""
+              />
+              <output class="tts-slider-value">1</output>
+            </div>
+
+            <figure class="paper-figure video-figure tts-chunk-figure">
+              <div class="tts-chunk-wrap">
+                <!-- <img data-slider-target alt="" /> -->
+                <div class="placeholder wide">Per-step frame</div>
+              </div>
+              <figcaption>TODO: caption.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="bibtex" class="section narrow">
+        <h2>BibTeX</h2>
+        <pre><code>@inproceedings{TODO,
+  title={Progress Probes (P$^2$): Lightweight Runtime Monitoring for Vision-Language-Action Models},
+  author={TODO},
+  booktitle={TODO},
+  year={TODO}
+}</code></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Website layout adapted from the
+        <a href="https://arnavkj1995.github.io/WEAVER/">WEAVER</a> project page.
+      </p>
+    </footer>
+    <script>
+      const progressBar = document.querySelector(".scroll-progress");
+
+      function updateScrollProgress() {
+        const scrollableHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const progress =
+          scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
+        progressBar.style.transform = `scaleX(${Math.min(
+          Math.max(progress, 0),
+          1,
+        )})`;
+      }
+
+      updateScrollProgress();
+      window.addEventListener("scroll", updateScrollProgress, { passive: true });
+      window.addEventListener("resize", updateScrollProgress);
+
+      // Pause for a second between loops instead of restarting immediately.
+      const delayedLoopTimers = new WeakMap();
+
+      function enableDelayedLoop(video, delayMs = 1000) {
+        video.loop = false;
+
+        function clearDelayedLoop() {
+          const timer = delayedLoopTimers.get(video);
+          if (timer !== undefined) {
+            window.clearTimeout(timer);
+            delayedLoopTimers.delete(video);
+          }
+        }
+
+        video.addEventListener("play", clearDelayedLoop);
+        video.addEventListener("loadstart", clearDelayedLoop);
+        video.addEventListener("ended", () => {
+          clearDelayedLoop();
+          const timer = window.setTimeout(() => {
+            delayedLoopTimers.delete(video);
+            video.currentTime = 0;
+            video.play().catch(() => {});
+          }, delayMs);
+          delayedLoopTimers.set(video, timer);
+        });
+      }
+
+      document.querySelectorAll("video[loop]").forEach((video) => {
+        enableDelayedLoop(video);
+      });
+
+      function setMediaSrc(media, src) {
+        if (!media || !src) return;
+        media.src = src;
+        if (media.tagName === "VIDEO") {
+          media.load();
+          media.play().catch(() => {});
+        }
+      }
+
+      document.querySelectorAll(".task-tabs").forEach((tabList) => {
+        const tabs = Array.from(tabList.querySelectorAll(".task-tab"));
+        const block = tabList.closest(".video-block");
+        const media = block ? block.querySelector("[data-swap]") : null;
+
+        function activate(tab) {
+          tabs.forEach((t) => {
+            const isActive = t === tab;
+            t.classList.toggle("active", isActive);
+            t.setAttribute("aria-selected", isActive ? "true" : "false");
+            t.tabIndex = isActive ? 0 : -1;
+          });
+          setMediaSrc(media, tab.dataset.src);
+        }
+
+        tabs.forEach((tab, index) => {
+          tab.addEventListener("click", () => activate(tab));
+          tab.addEventListener("keydown", (event) => {
+            const keys = {
+              ArrowLeft: (index - 1 + tabs.length) % tabs.length,
+              ArrowRight: (index + 1) % tabs.length,
+              Home: 0,
+              End: tabs.length - 1,
+            };
+            if (!(event.key in keys)) return;
+            event.preventDefault();
+            tabs[keys[event.key]].focus();
+            activate(tabs[keys[event.key]]);
+          });
+        });
+
+        activate(tabs.find((t) => t.classList.contains("active")) || tabs[0]);
+      });
+
+      document.querySelectorAll(".tts-slider").forEach((slider) => {
+        const panel = slider.closest(".tts-panel");
+        const output = panel.querySelector(".tts-slider-value");
+        const image = panel.querySelector("[data-slider-target]");
+        const pad3 = (n) => String(n).padStart(3, "0");
+
+        slider.addEventListener("input", () => {
+          output.value = slider.value;
+          if (image && slider.dataset.pattern) {
+            image.src = slider.dataset.pattern.replace("{i}", pad3(slider.value));
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
