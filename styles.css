@@ -159,6 +159,11 @@ h1 {
   cursor: not-allowed;
 }
 
+.project-link.disabled:hover {
+  border-color: #d6dbe5;
+  transform: none;
+}
+
 .icon {
   display: inline-flex;
   align-items: center;
