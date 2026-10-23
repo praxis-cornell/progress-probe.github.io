@@ -1080,6 +1080,8 @@ h1 {
 
 pre {
   overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   margin: 0;
   padding: 22px;
   border-radius: 8px;
